@@ -31,9 +31,15 @@ jobs:
           repository: ${{ inputs.repository || github.repository }}
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        # uses: pnpm/action-setup@v4
+        # with:
+        #   run_install: false
+        uses: nick-fields/retry@v3
         with:
-          run_install: false
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: npm install -g pnpm
 
       - name: Install Node.js
         uses: actions/setup-node@v6
@@ -43,12 +49,23 @@ jobs:
           cache-dependency-path: '**/pnpm-lock.yaml'
 
       - name: Install dependencies
-        run: pnpm install
+        # run: pnpm install
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm install
 
       - name: Run daily attendance
-        run: pnpm action
+        # run: pnpm action
+        uses: nick-fields/retry@v3
         env:
           SKLAND_TOKENS: ${{ secrets.SKLAND_TOKENS }}
           SKLAND_NOTIFICATION_URLS: ${{ secrets.SKLAND_NOTIFICATION_URLS }}
           SKLAND_MAX_RETRIES: ${{ secrets.MAX_RETRIES }}
           SKLAND_ANONYMOUS: ${{ secrets.SKLAND_ANONYMOUS }}
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: pnpm action

@@ -56,6 +56,9 @@ jobs:
           max_attempts: 3
           command: pnpm install
 
+      - name: Build project
+        run: pnpm build
+
       - name: Run daily attendance
         run: pnpm action
         env:
